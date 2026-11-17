@@ -1,56 +1,30 @@
-# Welcome to your Expo app 👋
+# Twofold
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A private, real-time chat for two people, built with Expo, React Native, and Supabase.
 
-## Get started
+## Set up Supabase
 
-1. Install dependencies
+1. Create a Supabase project.
+2. Open **SQL Editor** and run [`supabase/schema.sql`](./supabase/schema.sql). It creates the two-member room, profile, and message tables; Row Level Security policies; the private image bucket; and the Realtime publication entries.
+3. In **Authentication → Providers → Email**, enable email/password sign-in and turn **Confirm email** off. The app creates private, non-deliverable email identifiers so no email address is needed; confirmation must be disabled for the three-field sign-in flow to receive a session.
+4. In **Realtime → Settings**, turn off **Allow public access** so the room-scoped policies in the SQL script protect typing and presence channels.
+5. Copy `.env.example` to `.env` and set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` (or the project's publishable key). Never put a `service_role` key in the app.
+6. Start the app:
 
-   ```bash
+   ```sh
    npm install
-   ```
-
-2. Start the app
-
-   ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+One person creates the room and shares the generated invite code. The other person enters that code, then both set up with their own name, birthday, and 6–12 digit PIN. Supabase Auth stores the PIN as the account password; the app keeps the session in SecureStore on iOS/Android and browser storage on web. A room identifier is also saved locally so returning users can sign in with just the three fields; a new device needs the room invite code during its first setup.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Chat features
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Supabase Realtime messages, typing broadcasts, and presence-based online status
+- Per-member read receipts
+- Private Storage image uploads with short-lived signed display URLs
+- Row Level Security limits each room to its two authenticated members
 
-## Get a fresh project
+## Security notes
 
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+The invite code is randomly generated and only its SHA-256 hash is stored. The database enforces a two-member maximum and protects room data with RLS. Birthdays are profile data, not a secret or a substitute for the PIN. A 6-digit PIN has limited resistance to guessing; use a longer PIN and configure appropriate Supabase Auth rate limits before production. Messages are protected in transit and by database access policies, but are **not end-to-end encrypted**—the Supabase project can access stored message content.

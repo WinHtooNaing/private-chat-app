@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "private-chat",
+    "name": "Twofold",
     "slug": "private-chat",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -26,13 +26,20 @@
     "plugins": [
       "expo-router",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Twofold to access photos you choose to share in your private chat."
+        }
+      ],
+      [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#FAF6F2",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
